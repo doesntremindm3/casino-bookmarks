@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Bookmark Manager v8{% endblock %}
+
+{% block header %}Casino Bookmarks v8.1 - Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0;">Your Bookmark Subdomains</h2>
+        </a>
+    </div>
+    
+    <form method="POST" action="{{ url_for('create_subdomain') }}" style="margin-bottom: 30px;">
+        <div style="display: flex; gap: 10px; align-items: flex-end;">
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label for="name">Create New Subdomain</label>
+                <input type="text" id="name" name="name" placeholder="e.g., blackjack" required pattern="[a-z0-9-]+" title="Only lowercase letters, numbers, and hyphens">
+            </div>
+            <button type="submit" class="btn">Create</button>
+        </div>
+        <small style="color: #666; display: block; margin-top: 5px;">
+            After creating, subdomain will be at: <strong>[subdomain].bookmarks.dougshipe.com</strong><br>
+            <em>Note: Uses wildcard DNS (*.bookmarks → your server IP)</em>
+        </small>
+    </form>
+    
+    {% if subdomains %}
+    <table class="sortable">
+        <thead>
+            <tr>
+                <th class="sortable-header" data-sort="name">Subdomain ▲▼</th>
+                <th class="sortable-header" data-sort="url">Full URL ▲▼</th>
+                <th class="sortable-header" data-sort="enabled">Enabled ▲▼</th>
+                <th class="sortable-header" data-sort="date">Created ▲▼</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subdomain in subdomains %}
+            <tr>
+                <td data-value="{{ subdomain.name }}"><strong>{{ subdomain.name }}</strong></td>
+                <td data-value="{{ subdomain.name }}">
+                    <a href="https://{{ subdomain.name }}.bookmarks.dougshipe.com" target="_blank">
+                        {{ subdomain.name }}.bookmarks.dougshipe.com
+                    </a>
+                </td>
+                <td data-value="{{ subdomain.enabled_count }}">
+                    <strong style="color: #27ae60;">{{ subdomain.enabled_count }}</strong> / {{ global_url_count }} URLs
+                </td>
+                <td data-value="{{ subdomain.created_at }}">{{ subdomain.created_at[:10] }}</td>
+                <td>
+                    <div class="actions">
+                        <a href="{{ url_for('edit_subdomain', subdomain_id=subdomain.id) }}" class="btn btn-small">
+                            Edit URLs
+                        </a>
+                        <a href="{{ url_for('edit_subdomain_name', subdomain_id=subdomain.id) }}" class="btn btn-small">
+                            Rename
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_subdomain', subdomain_id=subdomain.id) }}" 
+                              onsubmit="return confirm('Delete {{ subdomain.name }} and all its URL associations?');" 
+                              style="display: inline;">
+                            <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #666;">
+        <p>No subdomains created yet. Create your first one above!</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 10px;">✨ What's New in v8.1</h3>
+    <ul style="margin-left: 20px; line-height: 2; color: #555;">
+        <li><strong>Batch Opening:</strong> URLs now open in configurable batches to prevent browser crashes</li>
+        <li><strong>Settings Page:</strong> Configure how many URLs open at once (default: 10)</li>
+        <li><strong>Progress Tracking:</strong> See X/Y URLs opened with visual progress bar</li>
+        <li><strong>"Open All" Option:</strong> Skip batching and open everything at once if desired</li>
+    </ul>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 10px;">📋 Version History</h3>
+    
+    <details style="margin-bottom: 15px;">
+        <summary style="cursor: pointer; font-weight: 600; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+            v8.0 - Central URL Repository (January 2026)
+        </summary>
+        <ul style="margin: 10px 0 0 20px; line-height: 2; color: #555;">
+            <li><strong>Central URL Repository:</strong> Casinos are managed in <a href="https://casinodata.dougshipe.com" target="_blank">CasinoData</a></li>
+            <li><strong>Toggle Control:</strong> Enable/disable URLs per subdomain with switches</li>
+            <li><strong>Editable Names:</strong> Give URLs friendly names like "Chumba Casino"</li>
+            <li><strong>Sortable Tables:</strong> Click column headers to sort by any column</li>
+            <li><strong>No Duplication:</strong> URLs are stored once and reused across subdomains</li>
+            <li><strong>Auto-Migration:</strong> Automatic upgrade from v7 with data preservation</li>
+            <li><strong>Count Displays:</strong> See enabled/total URLs for each subdomain</li>
+        </ul>
+    </details>
+    
+    <details style="margin-bottom: 15px;">
+        <summary style="cursor: pointer; font-weight: 600; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+            v7.0 - Wildcard Subdomain System (January 2026)
+        </summary>
+        <ul style="margin: 10px 0 0 20px; line-height: 2; color: #555;">
+            <li><strong>Wildcard Subdomain Routing:</strong> *.bookmarks.dougshipe.com automatically routes to app</li>
+            <li><strong>Per-Subdomain URLs:</strong> Each subdomain had its own URL list (duplicates allowed)</li>
+            <li><strong>Simple Toggle:</strong> Enable/disable URLs with checkboxes</li>
+            <li><strong>Manual Ordering:</strong> Up/down arrows to reorder URLs</li>
+            <li><strong>Multi-User Auth:</strong> Support for multiple admin users</li>
+        </ul>
+    </details>
+    
+    <details style="margin-bottom: 15px;">
+        <summary style="cursor: pointer; font-weight: 600; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+            Earlier Versions (v1-v6)
+        </summary>
+        <ul style="margin: 10px 0 0 20px; line-height: 2; color: #555;">
+            <li><strong>v6:</strong> Improved rename functionality and subdomain management</li>
+            <li><strong>v5:</strong> Added announcement system for temporary messages</li>
+            <li><strong>v4:</strong> Enhanced dashboard with color-coded site opening pages</li>
+            <li><strong>v3:</strong> Introduced proper URL validation and sanitization</li>
+            <li><strong>v2:</strong> Added database persistence with SQLite</li>
+            <li><strong>v1:</strong> Initial Flask app with basic subdomain and URL management</li>
+        </ul>
+    </details>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 10px;">How It Works</h3>
+    <ol style="margin-left: 20px; line-height: 2;">
+        <li>Casinos are managed in CasinoData - changes sync automatically on page refresh</li>
+        <li>Create a subdomain (e.g., "blackjack")</li>
+        <li>Toggle which global URLs appear on each subdomain</li>
+        <li>Visit <code>https://blackjack.bookmarks.dougshipe.com</code> to open enabled sites</li>
+    </ol>
+</div>
+
+<script>
+// Simple table sorting
+document.querySelectorAll('.sortable-header').forEach(header => {
+    header.addEventListener('click', function() {
+        const table = this.closest('table');
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const column = this.dataset.sort;
+        const currentDirection = this.dataset.direction || 'asc';
+        const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+        
+        // Clear all headers
+        table.querySelectorAll('.sortable-header').forEach(h => {
+            h.dataset.direction = '';
+            h.style.fontWeight = 'normal';
+        });
+        
+        // Mark this header as sorted
+        this.dataset.direction = newDirection;
+        this.style.fontWeight = 'bold';
+        
+        // Sort rows
+        rows.sort((a, b) => {
+            let aVal = a.querySelector(`td[data-value]`).dataset.value || '';
+            let bVal = b.querySelector(`td[data-value]`).dataset.value || '';
+            
+            // Try to parse as numbers
+            const aNum = parseFloat(aVal);
+            const bNum = parseFloat(bVal);
+            
+            if (!isNaN(aNum) && !isNaN(bNum)) {
+                return newDirection === 'asc' ? aNum - bNum : bNum - aNum;
+            }
+            
+            // String comparison
+            if (newDirection === 'asc') {
+                return aVal.localeCompare(bVal);
+            } else {
+                return bVal.localeCompare(aVal);
+            }
+        });
+        
+        // Re-append rows
+        rows.forEach(row => tbody.appendChild(row));
+    });
+});
+</script>
+{% endblock %}

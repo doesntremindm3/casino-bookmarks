@@ -1,0 +1,43 @@
+# Environment
+.env
+
+# Data
+data/
+*.db
+*.db-journal
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# Node
+node_modules/
+dist/
+.npm
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Backup files (now tracked by git)
+*.backup
+*.backup-*
+*.save
+*.save.*
+*.old
+*.v[0-9]
+*.v[0-9][0-9]

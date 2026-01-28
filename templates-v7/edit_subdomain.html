@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ subdomain.name }} - Bookmark Manager{% endblock %}
+
+{% block header %}Editing: {{ subdomain.name }}.bookmarks.dougshipe.com{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Toggle Switch Styles */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+        cursor: pointer;
+    }
+    
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .3s;
+        border-radius: 24px;
+    }
+    
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .toggle-slider {
+        background-color: #2ecc71;
+    }
+    
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+    
+    .url-item {
+        opacity: 1;
+        transition: opacity 0.3s;
+    }
+    
+    .url-disabled {
+        background-color: #f8f9fa !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('admin') }}" class="btn">← Back to Dashboard</a>
+    <a href="https://{{ subdomain.name }}.bookmarks.dougshipe.com" target="_blank" class="btn" style="margin-left: 10px;">
+        🔗 Test This Subdomain
+    </a>
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 20px;">Add Website URL</h2>
+    
+    <form method="POST" action="{{ url_for('add_url', subdomain_id=subdomain.id) }}">
+        <div style="display: flex; gap: 10px; align-items: flex-end;">
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label for="url">Website URL</label>
+                <input type="url" id="url" name="url" placeholder="https://example.com" required>
+            </div>
+            <button type="submit" class="btn">Add URL</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 20px;">URLs ({{ urls|length }} total)</h2>
+    
+    {% if urls %}
+    <ul class="url-list">
+        {% for url in urls %}
+        <li class="url-item {% if not url.enabled %}url-disabled{% endif %}">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                <form method="POST" action="{{ url_for('toggle_url', subdomain_id=subdomain.id, url_id=url.id) }}" style="margin: 0;">
+                    <label class="toggle-switch" title="{{ 'Enabled - Click to disable' if url.enabled else 'Disabled - Click to enable' }}">
+                        <input type="checkbox" {{ 'checked' if url.enabled else '' }} onchange="this.form.submit()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </form>
+                <span class="url-text">
+                    <strong>{{ loop.index }}.</strong> 
+                    <a href="{{ url.url }}" target="_blank" style="{% if not url.enabled %}opacity: 0.5; text-decoration: line-through;{% endif %}">{{ url.url }}</a>
+                    {% if not url.enabled %}<span style="color: #e74c3c; margin-left: 10px; font-size: 12px;">(Disabled)</span>{% endif %}
+                </span>
+            </div>
+            <div class="url-actions">
+                {% if not loop.first %}
+                <form method="POST" action="{{ url_for('move_url', subdomain_id=subdomain.id, url_id=url.id, direction='up') }}" style="display: inline;">
+                    <button type="submit" class="btn btn-small" title="Move up">↑</button>
+                </form>
+                {% endif %}
+                
+                {% if not loop.last %}
+                <form method="POST" action="{{ url_for('move_url', subdomain_id=subdomain.id, url_id=url.id, direction='down') }}" style="display: inline;">
+                    <button type="submit" class="btn btn-small" title="Move down">↓</button>
+                </form>
+                {% endif %}
+                
+                <form method="POST" action="{{ url_for('delete_url', subdomain_id=subdomain.id, url_id=url.id) }}" 
+                      onsubmit="return confirm('Delete this URL?');" 
+                      style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                </form>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    
+    <div style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 5px;">
+        <strong>💡 Tip:</strong> When you visit <code>{{ subdomain.name }}.bookmarks.dougshipe.com</code>, 
+        only enabled URLs will open in new tabs. Toggle the switches to enable/disable URLs.
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #666;">
+        <p>No URLs added yet. Add your first URL above!</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 20px;">📥 Import / Export This Subdomain</h3>
+    
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 250px;">
+            <h4 style="margin-bottom: 10px;">Export</h4>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                Download URLs for {{ subdomain.name }}
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <a href="{{ url_for('export_subdomain_csv', subdomain_id=subdomain.id) }}" class="btn btn-small">
+                    Download CSV
+                </a>
+                <a href="{{ url_for('export_subdomain_xlsx', subdomain_id=subdomain.id) }}" class="btn btn-small">
+                    Download XLSX
+                </a>
+            </div>
+        </div>
+        
+        <div style="flex: 1; min-width: 250px;">
+            <h4 style="margin-bottom: 10px;">Import</h4>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                Upload CSV or XLSX to add URLs
+            </p>
+            <form method="POST" action="{{ url_for('import_subdomain', subdomain_id=subdomain.id) }}" enctype="multipart/form-data">
+                <div style="display: flex; gap: 10px; align-items: flex-end;">
+                    <input type="file" name="file" accept=".csv,.xlsx,.xls" required style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    <button type="submit" class="btn btn-small">Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; font-size: 14px;">
+        <strong>📋 File Format:</strong>
+        <pre style="margin: 10px 0; font-family: monospace; background: white; padding: 10px; border-radius: 5px;">{{ subdomain.name }}.bookmarks.dougshipe.com
+https://example.com
+https://example2.com
+https://example3.com</pre>
+    </div>
+</div>
+{% endblock %}

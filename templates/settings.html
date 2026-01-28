@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Bookmark Manager v8.1{% endblock %}
+
+{% block header %}Casino Bookmarks v8.1 - Settings{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('admin') }}" class="btn">← Back to Dashboard</a>
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 20px;">⚙️ Settings</h2>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="batch_size">
+                <strong>Batch Opening Size</strong>
+            </label>
+            <p style="color: #666; font-size: 14px; margin: 5px 0 10px 0;">
+                When visiting a subdomain with many URLs, they will open in batches of this size to prevent browser crashes.
+            </p>
+            <input 
+                type="number" 
+                id="batch_size" 
+                name="batch_size" 
+                value="{{ batch_size }}" 
+                min="1" 
+                max="500" 
+                required
+                style="width: 150px;"
+            >
+            <small style="display: block; color: #999; margin-top: 5px;">
+                Min: 1, Max: 500, Default: 10
+            </small>
+        </div>
+        
+        <button type="submit" class="btn" style="margin-top: 20px;">💾 Save Settings</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 10px;">ℹ️ How Batch Opening Works</h3>
+    <ul style="margin-left: 20px; line-height: 2; color: #555;">
+        <li>When you visit a subdomain, only the first batch of URLs will open automatically</li>
+        <li>A progress screen will show how many URLs have opened (e.g., "10 / 47 URLs")</li>
+        <li>Click "Next Batch" to open the next set of URLs</li>
+        <li>Or click "Open All Remaining" to open everything at once</li>
+        <li>This setting applies to all users and all subdomains</li>
+    </ul>
+</div>
+{% endblock %}

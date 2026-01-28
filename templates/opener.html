@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subdomain }} - Opening Sites...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 700px;
+            padding: 40px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .subdomain-name {
+            font-size: 18px;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+        
+        .status {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .progress-text {
+            font-size: 20px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        
+        .progress {
+            background: rgba(255, 255, 255, 0.2);
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            background: white;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .batch-info {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .batch-info p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #229954;
+        }
+        
+        .info {
+            margin-top: 30px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .complete-message {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰</h1>
+        <div class="subdomain-name">{{ subdomain }}.bookmarks.dougshipe.com</div>
+        
+        <div class="status" id="status">Ready to open sites</div>
+        <div class="progress-text" id="progressText">0 / {{ urls|length }} URLs opened</div>
+        
+        <div class="progress">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+        
+        <div class="batch-info">
+            <p><strong>Total URLs:</strong> {{ urls|length }}</p>
+            <p><strong>Batch Size:</strong> {{ batch_size }} URLs at a time</p>
+            <p id="batchStatus">Click "Next Batch" to start opening URLs</p>
+        </div>
+        
+        <div class="buttons">
+            <button class="btn btn-primary" id="nextButton" onclick="openNextBatch()">
+                Next {{ batch_size }} URLs →
+            </button>
+            <button class="btn" id="openAllButton" onclick="openAllRemaining()">
+                Open All Remaining
+            </button>
+        </div>
+        
+        <div class="info" id="info">
+            Please allow pop-ups for this site if prompted.
+        </div>
+        
+        <div class="complete-message" id="completeMessage" style="display: none;">
+            ✓ All sites opened! You can close this tab now.
+        </div>
+    </div>
+    
+    <script>
+        const urls = {{ urls|tojson }};
+        const batchSize = {{ batch_size }};
+        const totalUrls = urls.length;
+        let openedCount = 0;
+        let currentBatch = 0;
+        
+        function updateProgress() {
+            const percentage = (openedCount / totalUrls) * 100;
+            const progressBar = document.getElementById('progress');
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = Math.round(percentage) + '%';
+            
+            document.getElementById('progressText').textContent = 
+                openedCount + ' / ' + totalUrls + ' URLs opened';
+            
+            // Update batch status
+            const remaining = totalUrls - openedCount;
+            if (remaining === 0) {
+                document.getElementById('status').textContent = 'Complete! ✓';
+                document.getElementById('batchStatus').textContent = 'All URLs have been opened';
+                document.getElementById('nextButton').disabled = true;
+                document.getElementById('openAllButton').disabled = true;
+                document.getElementById('completeMessage').style.display = 'block';
+            } else {
+                const nextBatchSize = Math.min(batchSize, remaining);
+                document.getElementById('nextButton').textContent = 
+                    'Next ' + nextBatchSize + ' URL' + (nextBatchSize > 1 ? 's' : '') + ' →';
+                document.getElementById('batchStatus').textContent = 
+                    remaining + ' URL' + (remaining > 1 ? 's' : '') + ' remaining';
+            }
+        }
+        
+        function openNextBatch() {
+            const startIndex = currentBatch * batchSize;
+            const endIndex = Math.min(startIndex + batchSize, totalUrls);
+            
+            document.getElementById('status').textContent = 'Opening batch ' + (currentBatch + 1) + '...';
+            
+            // Open URLs in this batch
+            for (let i = startIndex; i < endIndex; i++) {
+                setTimeout(() => {
+                    try {
+                        window.open(urls[i], '_blank');
+                        openedCount++;
+                        updateProgress();
+                    } catch (e) {
+                        console.error('Failed to open URL:', urls[i], e);
+                    }
+                }, (i - startIndex) * 200); // Stagger by 200ms
+            }
+            
+            currentBatch++;
+            
+            setTimeout(() => {
+                document.getElementById('status').textContent = 'Batch complete';
+            }, (endIndex - startIndex) * 200 + 500);
+        }
+        
+        function openAllRemaining() {
+            if (!confirm('This will open ' + (totalUrls - openedCount) + ' URLs at once. Continue?')) {
+                return;
+            }
+            
+            const startIndex = currentBatch * batchSize;
+            document.getElementById('status').textContent = 'Opening all remaining...';
+            
+            for (let i = startIndex; i < totalUrls; i++) {
+                setTimeout(() => {
+                    try {
+                        window.open(urls[i], '_blank');
+                        openedCount++;
+                        updateProgress();
+                    } catch (e) {
+                        console.error('Failed to open URL:', urls[i], e);
+                    }
+                }, (i - startIndex) * 200);
+            }
+            
+            currentBatch = Math.ceil(totalUrls / batchSize);
+        }
+        
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>

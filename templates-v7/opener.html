@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subdomain }} - Opening Sites...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+        }
+        
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .status {
+            font-size: 24px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .progress {
+            background: rgba(255, 255, 255, 0.2);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            background: white;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .url-list {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .url-list h3 {
+            margin-bottom: 15px;
+        }
+        
+        .url-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            word-break: break-all;
+        }
+        
+        .url-item:last-child {
+            border-bottom: none;
+        }
+        
+        .url-item.opened {
+            opacity: 0.5;
+        }
+        
+        .info {
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .manual-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .manual-button:hover {
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰</h1>
+        <div class="status" id="status">Opening {{ urls|length }} sites...</div>
+        
+        <div class="progress">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+        
+        <div id="counter">0 / {{ urls|length }} opened</div>
+        
+        <button class="manual-button" id="manualButton" style="display: none;" onclick="openAllManually()">
+            Open All Sites Manually
+        </button>
+        
+        <div class="url-list">
+            <h3>Sites to Open:</h3>
+            {% for url in urls %}
+            <div class="url-item" id="url-{{ loop.index0 }}">
+                {{ loop.index }}. <a href="{{ url }}" target="_blank" style="color: white;">{{ url }}</a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="info" id="info">
+            Please allow pop-ups for this site if prompted.
+        </div>
+    </div>
+    
+    <script>
+        const urls = {{ urls|tojson }};
+        let openedCount = 0;
+        const totalUrls = urls.length;
+        let autoOpenFailed = false;
+        
+        function updateProgress() {
+            const percentage = (openedCount / totalUrls) * 100;
+            document.getElementById('progress').style.width = percentage + '%';
+            document.getElementById('counter').textContent = openedCount + ' / ' + totalUrls + ' opened';
+            
+            if (openedCount === totalUrls) {
+                document.getElementById('status').textContent = 'All sites opened! ✓';
+                document.getElementById('info').textContent = 'You can close this tab now.';
+            }
+        }
+        
+        function markUrlAsOpened(index) {
+            const element = document.getElementById('url-' + index);
+            if (element) {
+                element.classList.add('opened');
+            }
+        }
+        
+        function openAllManually() {
+            urls.forEach((url, index) => {
+                setTimeout(() => {
+                    window.open(url, '_blank');
+                    openedCount++;
+                    updateProgress();
+                    markUrlAsOpened(index);
+                }, index * 500); // Stagger by 500ms each
+            });
+        }
+        
+        // Attempt automatic opening
+        function autoOpen() {
+            let delay = 0;
+            
+            urls.forEach((url, index) => {
+                setTimeout(() => {
+                    try {
+                        const newWindow = window.open(url, '_blank');
+                        
+                        // Check if window.open was blocked
+                        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                            if (!autoOpenFailed) {
+                                autoOpenFailed = true;
+                                document.getElementById('status').textContent = 'Pop-up blocked - Click button to continue';
+                                document.getElementById('info').textContent = 'Your browser blocked automatic opening. Click the button below.';
+                                document.getElementById('manualButton').style.display = 'inline-block';
+                            }
+                        } else {
+                            openedCount++;
+                            updateProgress();
+                            markUrlAsOpened(index);
+                        }
+                    } catch (e) {
+                        if (!autoOpenFailed) {
+                            autoOpenFailed = true;
+                            document.getElementById('status').textContent = 'Pop-up blocked - Click button to continue';
+                            document.getElementById('info').textContent = 'Your browser blocked automatic opening. Click the button below.';
+                            document.getElementById('manualButton').style.display = 'inline-block';
+                        }
+                    }
+                }, delay);
+                
+                // Stagger opening to avoid browser blocking
+                delay += 200;
+            });
+        }
+        
+        // Start automatic opening after a short delay
+        setTimeout(autoOpen, 1000);
+    </script>
+</body>
+</html>

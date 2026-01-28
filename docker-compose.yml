@@ -1,0 +1,38 @@
+services:
+  casino-bookmarks:
+    build: .
+    container_name: casino-bookmarks
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    environment:
+      - TZ=America/New_York
+      - SECRET_KEY=21cf0ea7e3d53cb7dc775e5fc2bd3913f6b59a9da51f689fb4f1f9a32ad9ddd8
+      - CASINODATA_URL=https://casinodata.dougshipe.com
+    volumes:
+      - ./data:/data
+      - /mnt/docker-data/compose/casinodata/data:/casinodata:ro
+    labels:
+      - "traefik.enable=true"
+      
+      # HTTP to HTTPS redirect
+      - "traefik.http.routers.casino-bookmarks.entrypoints=http"
+      - "traefik.http.routers.casino-bookmarks.rule=Host(`casinobookmarks.dougshipe.com`) || HostRegexp(`^[a-z0-9-]+\\.bookmarks\\.dougshipe\\.com$`)"
+      - "traefik.http.middlewares.casino-bookmarks-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.casino-bookmarks.middlewares=casino-bookmarks-https-redirect"
+      
+      # HTTPS router
+      - "traefik.http.routers.casino-bookmarks-secure.entrypoints=https"
+      - "traefik.http.routers.casino-bookmarks-secure.rule=Host(`casinobookmarks.dougshipe.com`) || HostRegexp(`^[a-z0-9-]+\\.bookmarks\\.dougshipe\\.com$`)"
+      - "traefik.http.routers.casino-bookmarks-secure.tls=true"
+      - "traefik.http.routers.casino-bookmarks-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.casino-bookmarks-secure.service=casino-bookmarks"
+      
+      # Service definition
+      - "traefik.http.services.casino-bookmarks.loadbalancer.server.port=5000"
+
+networks:
+  proxy:
+    external: true

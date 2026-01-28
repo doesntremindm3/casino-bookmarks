@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Bookmark Manager{% endblock %}
+
+{% block header %}Casino Bookmarks - Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 style="margin-bottom: 20px;">Your Bookmark Subdomains</h2>
+    
+    <form method="POST" action="{{ url_for('create_subdomain') }}" style="margin-bottom: 30px;">
+        <div style="display: flex; gap: 10px; align-items: flex-end;">
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label for="name">Create New Subdomain</label>
+                <input type="text" id="name" name="name" placeholder="e.g., blackjack" required pattern="[a-z0-9-]+" title="Only lowercase letters, numbers, and hyphens">
+            </div>
+            <button type="submit" class="btn">Create</button>
+        </div>
+        <small style="color: #666; display: block; margin-top: 5px;">
+            After creating, subdomain will be at: <strong>[subdomain].bookmarks.dougshipe.com</strong><br>
+            <em>Note: Uses wildcard DNS (*.bookmarks → your server IP)</em>
+        </small>
+    </form>
+    
+    {% if subdomains %}
+    <table>
+        <thead>
+            <tr>
+                <th>Subdomain</th>
+                <th>Full URL</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subdomain in subdomains %}
+            <tr>
+                <td><strong>{{ subdomain.name }}</strong></td>
+                <td>
+                    <a href="https://{{ subdomain.name }}.bookmarks.dougshipe.com" target="_blank">
+                        {{ subdomain.name }}.bookmarks.dougshipe.com
+                    </a>
+                </td>
+                <td>{{ subdomain.created_at[:10] }}</td>
+                <td>
+                    <div class="actions">
+                        <a href="{{ url_for('edit_subdomain', subdomain_id=subdomain.id) }}" class="btn btn-small">
+                            Edit URLs
+                        </a>
+                        <a href="{{ url_for('edit_subdomain_name', subdomain_id=subdomain.id) }}" class="btn btn-small">
+                            Edit
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_subdomain', subdomain_id=subdomain.id) }}" 
+                              onsubmit="return confirm('Delete {{ subdomain.name }} and all its URLs?');" 
+                              style="display: inline;">
+                            <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #666;">
+        <p>No subdomains created yet. Create your first one above!</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 20px;">📥 Import / Export Entire Database</h3>
+    
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 250px;">
+            <h4 style="margin-bottom: 10px;">Export</h4>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                Download all your subdomains and URLs
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <a href="{{ url_for('export_database_csv') }}" class="btn btn-small">
+                    Download CSV
+                </a>
+                <a href="{{ url_for('export_database_xlsx') }}" class="btn btn-small">
+                    Download XLSX
+                </a>
+            </div>
+        </div>
+        
+        <div style="flex: 1; min-width: 250px;">
+            <h4 style="margin-bottom: 10px;">Import</h4>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                Upload CSV or XLSX file to add subdomains/URLs
+            </p>
+            <form method="POST" action="{{ url_for('import_database') }}" enctype="multipart/form-data">
+                <div style="display: flex; gap: 10px; align-items: flex-end;">
+                    <input type="file" name="file" accept=".csv,.xlsx,.xls" required style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    <button type="submit" class="btn btn-small">Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; font-size: 14px;">
+        <strong>📋 File Format:</strong>
+        <pre style="margin: 10px 0; font-family: monospace; background: white; padding: 10px; border-radius: 5px;">subdomain1.bookmarks.dougshipe.com
+https://example.com
+https://example2.com
+
+subdomain2.bookmarks.dougshipe.com
+https://site1.com
+https://site2.com</pre>
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 10px;">How It Works</h3>
+    <ol style="margin-left: 20px; line-height: 2;">
+        <li>One-time setup: Add wildcard DNS: <code>*.bookmarks</code> A record → your server IP</li>
+        <li>Create a subdomain (e.g., "blackjack")</li>
+        <li>Click "Edit URLs" to add casino sites</li>
+        <li>Visit <code>https://blackjack.bookmarks.dougshipe.com</code> to open all sites at once</li>
+    </ol>
+</div>
+{% endblock %}

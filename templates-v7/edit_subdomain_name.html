@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Subdomain Name - Bookmark Manager{% endblock %}
+
+{% block header %}Edit Subdomain: {{ subdomain.name }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('admin') }}" class="btn">← Back to Dashboard</a>
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 20px;">Edit Subdomain Name</h2>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="name">Subdomain Name</label>
+            <input type="text" id="name" name="name" value="{{ subdomain.name }}" 
+                   required pattern="[a-z0-9-]+" 
+                   title="Only lowercase letters, numbers, and hyphens">
+            <small style="color: #666; display: block; margin-top: 5px;">
+                Current: <strong>{{ subdomain.name }}.bookmarks.dougshipe.com</strong>
+            </small>
+        </div>
+        
+        <button type="submit" class="btn">Save Changes</button>
+    </form>
+    
+    <div style="margin-top: 30px; padding: 15px; background: #fff3cd; border-radius: 5px; border: 1px solid #ffc107;">
+        <strong>⚠️ Important:</strong>
+        <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+            <li>No DNS changes needed (wildcard DNS already covers all subdomains)</li>
+            <li>The subdomain will be available immediately at: <strong>[new-name].bookmarks.dougshipe.com</strong></li>
+            <li>All URLs associated with this subdomain will be preserved</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
