@@ -2,7 +2,7 @@
 
 {% block title %}Edit {{ subdomain.name }} - Bookmark Manager v8{% endblock %}
 
-{% block header %}Editing: {{ subdomain.name }}.bookmarks.dougshipe.com{% endblock %}
+{% block header %}Editing: {{ subdomain.name }}.bookmarks-dev.dougshipe.com{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -72,9 +72,7 @@
 {% block content %}
 <div style="margin-bottom: 20px;">
     <a href="{{ url_for('admin') }}" class="btn">← Back to Dashboard</a>
-        🌐 Manage Global URLs
-    </a>
-    <a href="https://{{ subdomain.name }}.bookmarks.dougshipe.com" target="_blank" class="btn" style="margin-left: 10px;">
+    <a href="https://{{ subdomain.name }}.bookmarks-dev.dougshipe.com" target="_blank" class="btn" style="margin-left: 10px;">
         🔗 Test This Subdomain
     </a>
 </div>
@@ -87,7 +85,7 @@
     
     <p style="color: #666; margin-bottom: 20px;">
         Toggle the switches below to enable/disable URLs for this subdomain. 
-        Enabled URLs will open when you visit <code>{{ subdomain.name }}.bookmarks.dougshipe.com</code>
+        Enabled URLs will open when you visit <code>{{ subdomain.name }}.bookmarks-dev.dougshipe.com</code>
     </p>
     
     {% if urls %}
