@@ -586,9 +586,9 @@ def index():
             return redirect(url_for('admin'))
         return redirect(url_for('login'))
     
-    # Extract subdomain from format: subdomain.bookmarks-dev.dougshipe.com
-    if '.bookmarks-dev.dougshipe.com' in host:
-        subdomain = host.split('.bookmarks-dev.dougshipe.com')[0].split('.')[-1]
+    # Extract subdomain from format: subdomain.bookmarks.dougshipe.com
+    if '.bookmarks.dougshipe.com' in host:
+        subdomain = host.split('.bookmarks.dougshipe.com')[0].split('.')[-1]
         
         db = get_db()
         subdomain_record = db.execute(
@@ -626,7 +626,7 @@ def index():
         return render_template('subdomain_not_found.html', subdomain=subdomain)
     
     # Fallback
-    return 'Bookmark Manager v8 - Access via subdomain.bookmarks-dev.dougshipe.com or admin at casinobookmarks-dev.dougshipe.com'
+    return 'Bookmark Manager v8 - Access via subdomain.bookmarks.dougshipe.com or admin at casinobookmarks.dougshipe.com'
 
 
 if __name__ == '__main__':
