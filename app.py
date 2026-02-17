@@ -17,7 +17,9 @@ except ImportError:
     XLSX_AVAILABLE = False
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'change-this-in-production-please')
+app.secret_key = os.environ.get('SECRET_KEY')
+if not app.secret_key:
+    raise RuntimeError("SECRET_KEY environment variable is required")
 CASINODATA_URL = os.environ.get('CASINODATA_URL', 'https://casinodata.dougshipe.com')
 
 DB_PATH = '/data/bookmarks.db'
