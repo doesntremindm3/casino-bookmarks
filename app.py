@@ -16,11 +16,24 @@ try:
 except ImportError:
     XLSX_AVAILABLE = False
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
 if not app.secret_key:
     raise RuntimeError("SECRET_KEY environment variable is required")
 CASINODATA_URL = os.environ.get('CASINODATA_URL', 'https://casinodata.dougshipe.com')
+
+
+def get_real_ip():
+    forwarded = request.headers.get('X-Forwarded-For')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.remote_addr
+
+
+limiter = Limiter(app=app, key_func=get_real_ip, default_limits=[])
 
 DB_PATH = '/data/bookmarks.db'
 CASINODATA_DB = '/casinodata/casinodata.db'
@@ -255,7 +268,7 @@ def get_casinodata_sites():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-@app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("8/15 minutes", methods=["POST"])
 def login():
     """Admin login page - authenticates via CasinoData"""
     if request.method == 'POST':
