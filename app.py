@@ -35,6 +35,13 @@ def get_real_ip():
 
 limiter = Limiter(app=app, key_func=get_real_ip, default_limits=[])
 
+
+@app.after_request
+def set_cache_headers(response):
+    if response.content_type and 'text/html' in response.content_type:
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
+
 DB_PATH = '/data/bookmarks.db'
 CASINODATA_DB = '/casinodata/casinodata.db'
 ADMIN_SUBDOMAIN = os.environ.get('ADMIN_SUBDOMAIN', 'casinobookmarks')
