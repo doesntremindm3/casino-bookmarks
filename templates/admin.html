@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Dashboard - Bookmark Manager v8{% endblock %}
+{% block title %}Admin Dashboard - Bookmark Manager v9{% endblock %}
 
-{% block header %}Casino Bookmarks v8.1 - Dashboard{% endblock %}
+{% block header %}Casino Bookmarks v9 - Dashboard (Read-Only){% endblock %}
 
 {% block content %}
 <div class="card">
@@ -76,13 +76,32 @@
 </div>
 
 <div class="card">
-    <h3 style="margin-bottom: 10px;">✨ What's New in v8.1</h3>
-    <ul style="margin-left: 20px; line-height: 2; color: #555;">
-        <li><strong>Batch Opening:</strong> URLs now open in configurable batches to prevent browser crashes</li>
-        <li><strong>Settings Page:</strong> Configure how many URLs open at once (default: 10)</li>
-        <li><strong>Progress Tracking:</strong> See X/Y URLs opened with visual progress bar</li>
-        <li><strong>"Open All" Option:</strong> Skip batching and open everything at once if desired</li>
-    </ul>
+    <div style="background: #fff3cd; border-radius: 8px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="background: #ffc107; color: #533f03; padding: 3px 10px; border-radius: 12px; font-size: 13px; font-weight: 600;">v9</span>
+            <strong style="font-size: 16px;">Retired — Moved to Check-ins and Balances</strong>
+            <span style="color: #856404; font-size: 12px; font-weight: 600;">FINAL</span>
+        </div>
+        <ul style="margin-left: 20px; line-height: 2; color: #555;">
+            <li><strong>Read-Only Mode:</strong> Casino Bookmarks is now read-only. All bookmark management has moved to <a href="https://casinobalances.dougshipe.com/bookmarks">Check-ins and Balances &rarr; Bookmarks</a>.</li>
+            <li><strong>Data Migrated:</strong> All subdomains, URL associations, and settings have been automatically migrated to Check-ins and Balances.</li>
+            <li><strong>Subdomain Opener Still Works:</strong> Existing subdomain URLs (e.g., dougcasino.bookmarks.dougshipe.com) continue to work for opening sites in batches.</li>
+            <li><strong>Shutdown Planned:</strong> This app will be shut down in a future update. Please use Check-ins and Balances going forward.</li>
+        </ul>
+    </div>
+
+    <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #3498db;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="background: #3498db; color: white; padding: 3px 10px; border-radius: 12px; font-size: 13px; font-weight: 600;">v8.1</span>
+            <strong style="font-size: 16px;">Batch Opening</strong>
+        </div>
+        <ul style="margin-left: 20px; line-height: 2; color: #555;">
+            <li><strong>Batch Opening:</strong> URLs now open in configurable batches to prevent browser crashes</li>
+            <li><strong>Settings Page:</strong> Configure how many URLs open at once (default: 10)</li>
+            <li><strong>Progress Tracking:</strong> See X/Y URLs opened with visual progress bar</li>
+            <li><strong>"Open All" Option:</strong> Skip batching and open everything at once if desired</li>
+        </ul>
+    </div>
 </div>
 
 <div class="card">

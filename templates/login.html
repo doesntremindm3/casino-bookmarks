@@ -16,10 +16,22 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
+        }
+
+        .login-wrapper {
+            flex: 1;
+            display: flex;
             align-items: center;
             justify-content: center;
         }
-        
+
+        .app-footer { border-top: 1px solid rgba(255,255,255,0.2); padding: 0.75rem 1rem; text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.7); }
+        .footer-sep { margin: 0 0.5rem; opacity: 0.5; }
+        .footer-link { color: rgba(255,255,255,0.9); }
+        .footer-link:hover { text-decoration: underline; }
+        .footer-disclaimer { font-style: italic; opacity: 0.7; }
+
         .login-container {
             background: white;
             padding: 40px;
@@ -91,6 +103,7 @@
     </style>
 </head>
 <body>
+    <div class="login-wrapper">
     <div class="login-container">
         <h1>🎰 Casino Bookmarks</h1>
         
@@ -116,5 +129,13 @@
             <button type="submit" class="btn">Login</button>
         </form>
     </div>
+    </div>
+
+    <footer class="app-footer">
+        &copy; 2026 Doug Shipe
+        <span class="footer-sep">&bull;</span>
+        <a href="https://siterequest.dougshipe.com/submit?url={{ request.url | urlencode }}" target="_blank" rel="noopener" class="footer-link">Request a feature / Report a bug</a>&nbsp;
+        <span class="footer-disclaimer">Do not use this to report urgent technical issues, this is not checked daily.</span>
+    </footer>
 </body>
 </html>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Bookmark Manager{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}" />
     <style>
         * {
             margin: 0;
@@ -190,6 +191,18 @@
             flex-shrink: 0;
         }
     </style>
+        .app-footer {
+            border-top: 1px solid #ddd;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .footer-sep { margin: 0 0.5rem; opacity: 0.5; }
+        .footer-link { color: #3498db; text-decoration: none; }
+        .footer-link:hover { text-decoration: underline; }
+        .footer-disclaimer { font-style: italic; opacity: 0.7; }
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -206,6 +219,10 @@
     </div>
     {% endif %}
     
+    <div style="background: #fff3cd; border-bottom: 2px solid #ffc107; padding: 12px 20px; text-align: center; font-size: 14px; color: #856404;">
+        <strong>Read-Only:</strong> Casino Bookmarks has moved to <a href="https://casinobalances.dougshipe.com/bookmarks" style="color: #533f03; font-weight: 600;">Check-ins and Balances &rarr; Bookmarks</a>. This app is now read-only and will be shut down soon.
+    </div>
+
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -219,5 +236,12 @@
         
         {% block content %}{% endblock %}
     </div>
+
+    <footer class="app-footer">
+        &copy; 2026 Doug Shipe
+        <span class="footer-sep">&bull;</span>
+        <a href="https://siterequest.dougshipe.com/submit?url={{ request.url | urlencode }}" target="_blank" rel="noopener" class="footer-link">Request a feature / Report a bug</a>&nbsp;
+        <span class="footer-disclaimer">Do not use this to report urgent technical issues, this is not checked daily.</span>
+    </footer>
 </body>
 </html>

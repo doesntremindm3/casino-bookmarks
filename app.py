@@ -648,7 +648,7 @@ def index():
         return render_template('subdomain_not_found.html', subdomain=subdomain)
     
     # Fallback
-    return 'Bookmark Manager v8 - Access via subdomain.bookmarks.dougshipe.com or admin at casinobookmarks.dougshipe.com'
+    return 'Bookmark Manager v9 (Read-Only) - This app has moved to Check-ins and Balances. Access via subdomain.bookmarks.dougshipe.com or admin at casinobookmarks.dougshipe.com'
 
 
 if __name__ == '__main__':
